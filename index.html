@@ -747,11 +747,6 @@ function isValidDate(s) {
   return true;
 }
 
- function parseDate(s) {
-  const [d,mo,y] = s.split('.').map(Number);
-  return new Date(y, mo-1, d);
- }
-
 function submitBooking() {
   const name = document.getElementById('f-name').value.trim();
   const surname = document.getElementById('f-surname').value.trim();
