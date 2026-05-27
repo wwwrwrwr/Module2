@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Гостиница «Уют»</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0d0b;
+    --surface: #1a1714;
+    --card: #201e1a;
+    --border: #2e2b27;
+    --gold: #c8a96e;
+    --gold-light: #e2c99a;
+    --text: #f0ece4;
+    --muted: #8a8278;
+    --accent: #7c5c38;
+    --success: #4a7c59;
+    --error: #8b3a3a;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: clamp(13px, 1.5vw, 15px);
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: clamp(12px, 3vw, 20px) clamp(16px, 5vw, 60px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(20px, 4vw, 30px);
+    font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+  }
+
+  .slogan {
+    font-size: clamp(10px, 1.5vw, 13px);
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  .catalog-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: clamp(20px, 4vw, 48px) clamp(16px, 5vw, 32px);
+  }
+
+  .catalog-header { margin-bottom: clamp(20px, 4vw, 36px); }
+
+  .catalog-header h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(28px, 6vw, 52px);
+    font-weight: 300;
+    color: var(--gold-light);
+    line-height: 1.1;
+    margin-bottom: 8px;
+  }
+
+  .catalog-header p { color: var(--muted); }
+
+  .filter-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: clamp(14px, 3vw, 24px);
+    margin-bottom: clamp(20px, 4vw, 36px);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+  }
+
+  .filter-bar label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .filter-bar select {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    min-width: 160px;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .filter-bar select:focus { border-color: var(--gold); }
+
+  .filter-group { flex: 1; min-width: 140px; }
+
+  .filter-actions { display: flex; gap: 8px; align-items: flex-end; }
+
+  .btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-gold { background: var(--gold); color: #0f0d0b; }
+  .btn-gold:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+
+  .rooms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+    gap: clamp(12px, 2vw, 20px);
+  }
+
+  .room-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.25s, box-shadow 0.25s;
+  }
+
+  .room-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  }
+
+  .room-img-placeholder {
+    width: 100%;
+    height: clamp(140px, 20vw, 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    background: linear-gradient(135deg, var(--surface), var(--accent) 80%);
+  }
+
+  .room-body { padding: clamp(12px, 2vw, 18px); }
+
+  .room-category {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+
+  .room-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(18px, 3vw, 22px);
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .room-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .feature-tag {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .room-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .room-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(20px, 3.5vw, 26px);
+    font-weight: 600;
+    color: var(--gold-light);
+  }
+
+  .room-price span {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+  }
+
+  .btn-book {
+    background: var(--gold);
+    color: #0f0d0b;
+    padding: 8px 16px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+
+  .btn-book:hover { background: var(--gold-light); transform: scale(1.03); }
+
+  .no-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+    grid-column: 1/-1;
+  }
+
+  .booking-wrap {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: clamp(20px, 4vw, 48px) clamp(16px, 5vw, 32px);
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    background: none;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0;
+    margin-bottom: 24px;
+    transition: color 0.2s;
+  }
+
+  .back-btn:hover { color: var(--gold); }
+
+  .booking-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .booking-room-preview {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    padding: clamp(16px, 3vw, 24px);
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .booking-room-emoji { font-size: 36px; }
+
+  .booking-room-info h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(18px, 3vw, 22px);
+    color: var(--gold-light);
+    margin-bottom: 4px;
+  }
+
+  .booking-room-info p { color: var(--muted); font-size: 13px; }
+
+  .booking-form { padding: clamp(16px, 3vw, 28px); }
+
+  .booking-form h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(18px, 3vw, 24px);
+    color: var(--gold-light);
+    margin-bottom: 20px;
+    font-weight: 400;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  @media (max-width: 480px) {
+    .form-row { grid-template-columns: 1fr; }
+  }
+
+  .field { margin-bottom: 16px; }
+
+  .field label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .field input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 11px 14px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .field input:focus { border-color: var(--gold); }
+  .field input.err { border-color: var(--error) !important; }
+  .field input.ok { border-color: var(--success); }
+
+  .field-err {
+    font-size: 11px;
+    color: #c97676;
+    margin-top: 5px;
+    min-height: 14px;
+    display: block;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--gold);
+    color: #0f0d0b;
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: all 0.2s;
+    letter-spacing: 0.04em;
+  }
+
+  .submit-btn:hover { background: var(--gold-light); transform: translateY(-1px); }
+  .submit-btn:active { transform: translateY(0); }
+
+  .success-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,13,11,0.85);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .success-overlay.show { display: flex; }
+
+  .success-box {
+    background: var(--card);
+    border: 1px solid var(--gold);
+    border-radius: 20px;
+    padding: clamp(28px, 6vw, 52px);
+    text-align: center;
+    max-width: 440px;
+    width: 100%;
+    animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .success-icon { font-size: clamp(48px, 10vw, 72px); margin-bottom: 16px; }
+
+  .success-box h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(24px, 5vw, 32px);
+    color: var(--gold-light);
+    margin-bottom: 12px;
+    font-weight: 400;
+  }
+
+  .success-box p {
+    color: var(--muted);
+    line-height: 1.6;
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  footer {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: clamp(20px, 4vw, 36px) clamp(16px, 5vw, 60px);
+    margin-top: clamp(40px, 6vw, 80px);
+  }
+
+  .footer-grid {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: clamp(20px, 4vw, 40px);
+  }
+
+  .footer-block h4 {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+
+  .footer-block p, .footer-block a {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 2;
+    text-decoration: none;
+    display: block;
+  }
+
+  .footer-block a:hover { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">Гостиница «Уют»</div>
+    <div class="slogan">Ваш комфорт — наш приоритет</div>
+  </div>
+</header>
+
+<!-- CATALOG PAGE -->
+<div id="page-catalog" class="page active">
+  <div class="catalog-wrap">
+    <div class="catalog-header">
+      <h1>Каталог номеров</h1>
+      <p>6 случайных номеров из нашей коллекции</p>
+    </div>
+
+    <div class="filter-bar">
+      <div class="filter-group">
+        <label>Категория</label>
+        <select id="filter-cat">
+          <option value="">Все категории</option>
+          <option value="Стандарт">Стандарт</option>
+          <option value="Люкс">Люкс</option>
+          <option value="Делюкс">Делюкс</option>
+          <option value="Апартаменты">Апартаменты</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Цена до</label>
+        <select id="filter-price">
+          <option value="">Любая цена</option>
+          <option value="3000">до 3 000 ₽</option>
+          <option value="5000">до 5 000 ₽</option>
+          <option value="8000">до 8 000 ₽</option>
+        </select>
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-gold" onclick="applyFilter()">Применить</button>
+        <button class="btn btn-outline" onclick="resetFilter()">Сбросить фильтр</button>
+      </div>
+    </div>
+
+    <div class="rooms-grid" id="rooms-grid"></div>
+  </div>
+
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-block">
+        <h4>Адрес</h4>
+        <p>г. Москва, ул. Тверская, 12</p>
+      </div>
+      <div class="footer-block">
+        <h4>Режим работы</h4>
+        <p>Заезд: с 14:00</p>
+        <p>Выезд: до 12:00</p>
+        <p>Ресепшн: 24/7</p>
+      </div>
+      <div class="footer-block">
+        <h4>Контакты</h4>
+        <a href="tel:+74951234567">+7 (495) 123-45-67</a>
+        <a href="mailto:info@uyot-hotel.ru">info@uyot-hotel.ru</a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- BOOKING PAGE -->
+<div id="page-booking" class="page">
+  <div class="booking-wrap">
+    <button class="back-btn" onclick="goBack()">← Назад к каталогу</button>
+
+    <div class="booking-card">
+      <div class="booking-room-preview">
+        <div class="booking-room-emoji" id="b-emoji"></div>
+        <div class="booking-room-info">
+          <h2 id="b-name"></h2>
+          <p id="b-cat"></p>
+          <p id="b-price"></p>
+        </div>
+      </div>
+
+      <div class="booking-form">
+        <h3>Бронирование номера</h3>
+
+        <div class="form-row">
+          <div class="field">
+            <label>Имя *</label>
+            <input type="text" id="f-name" placeholder="Иван">
+            <span class="field-err" id="e-name"></span>
+          </div>
+          <div class="field">
+            <label>Фамилия *</label>
+            <input type="text" id="f-surname" placeholder="Иванов">
+            <span class="field-err" id="e-surname"></span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Телефон *</label>
+          <input type="tel" id="f-phone" placeholder="+7(XXX)XXX-XX-XX">
+          <span class="field-err" id="e-phone"></span>
+        </div>
+
+        <div class="field">
+          <label>E-mail *</label>
+          <input type="email" id="f-email" placeholder="mail@example.ru">
+          <span class="field-err" id="e-email"></span>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label>Дата заезда *</label>
+            <input type="text" id="f-checkin" placeholder="ДД.ММ.ГГГГ" maxlength="10">
+            <span class="field-err" id="e-checkin"></span>
+          </div>
+          <div class="field">
+            <label>Дата выезда *</label>
+            <input type="text" id="f-checkout" placeholder="ДД.ММ.ГГГГ" maxlength="10">
+            <span class="field-err" id="e-checkout"></span>
+          </div>
+        </div>
+
+        <button class="submit-btn" onclick="submitBooking()">Отправить заявку</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-block">
+        <h4>Адрес</h4>
+        <p>г. Москва, ул. Тверская, 12</p>
+      </div>
+      <div class="footer-block">
+        <h4>Режим работы</h4>
+        <p>Заезд: с 14:00</p>
+        <p>Выезд: до 12:00</p>
+        <p>Ресепшн: 24/7</p>
+      </div>
+      <div class="footer-block">
+        <h4>Контакты</h4>
+        <a href="tel:+74951234567">+7 (495) 123-45-67</a>
+        <a href="mailto:info@uyot-hotel.ru">info@uyot-hotel.ru</a>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- SUCCESS MODAL -->
+<div class="success-overlay" id="success-overlay">
+  <div class="success-box">
+    <div class="success-icon">✅</div>
+    <h2>Заявка отправлена!</h2>
+    <p>Спасибо! Ваша бронь принята. Мы свяжемся с вами в ближайшее время для подтверждения.</p>
+    <button class="btn btn-gold" onclick="goHome()" style="width:100%; padding:12px;">На главную</button>
+  </div>
+</div>
+
+<script>
+const ALL_ROOMS = [
+  { id:1, name:'Стандартный одноместный', cat:'Стандарт', price:2200, img: 'images1.jpeg', features:['Wi-Fi','TV','Душ'] },
+  { id:2, name:'Стандартный двухместный', cat:'Стандарт', price:2900, img:'Стандарт-2.jpg', features:['Wi-Fi','TV','Ванна'] },
+  { id:3, name:'Делюкс с видом на парк', cat:'Делюкс', price:4500, img:'dscf3.jpg', features:['Wi-Fi','TV','Мини-бар','Балкон'] },
+  { id:4, name:'Делюкс угловой', cat:'Делюкс', price:5200, img:'nomera-gostinicy4.jpg', features:['Wi-Fi','TV','Джакузи','Сейф'] },
+  { id:5, name:'Люкс «Классика»', cat:'Люкс', price:6800, img:'images6.jpeg', features:['Wi-Fi','TV','Мини-бар','Гостиная'] },
+  { id:6, name:'Люкс «Панорама»', cat:'Люкс', price:7500, img:'5.jpg', features:['Wi-Fi','TV','Джакузи','Кухня'] },
+  { id:7, name:'Апартаменты «Президент»', cat:'Апартаменты', price:12000, img:'7.webp', features:['Wi-Fi','TV','Мини-бар','2 ванных'] },
+  { id:8, name:'Семейный люкс', cat:'Люкс', price:8200, img:'images8.jpeg', features:['Wi-Fi','TV','2 спальни','Кухня'] },
+  { id:9, name:'Бизнес-номер', cat:'Делюкс', price:4800, img:'images9.jpeg', features:['Wi-Fi','TV','Рабочий стол','Сейф'] },
+];
+
+let displayedRooms = [];
+let selectedRoom = null;
+
+function shuffle(arr) {
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a.slice(0,6);
+}
+
+function renderRooms(rooms) {
+  const grid = document.getElementById('rooms-grid');
+  if(!rooms.length) {
+    grid.innerHTML = '<div class="no-results">Нет номеров, соответствующих выбранным условиям.<br>Попробуйте сбросить фильтр.</div>';
+    return;
+  }
+  grid.innerHTML = rooms.map(r => `
+    <div class="room-card">
+      <img class="room-img-placeholder" src="${r.img}" style="object-fit:cover;" alt="${r.name}">
+      <div class="room-body">
+        <div class="room-category">${r.cat}</div>
+        <div class="room-name">${r.name}</div>
+        <div class="room-features">
+          ${r.features.map(f=>`<span class="feature-tag">${f}</span>`).join('')}
+        </div>
+        <div class="room-footer">
+          <div class="room-price">${r.price.toLocaleString('ru')} ₽ <span>/ ночь</span></div>
+          <button class="btn-book" onclick="openBooking(${r.id})">Забронировать</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function applyFilter() {
+  const cat = document.getElementById('filter-cat').value;
+  const price = document.getElementById('filter-price').value;
+  let filtered = displayedRooms;
+  if(cat) filtered = filtered.filter(r => r.cat === cat);
+  if(price) filtered = filtered.filter(r => r.price <= parseInt(price));
+  renderRooms(filtered);
+}
+
+function resetFilter() {
+  document.getElementById('filter-cat').value = '';
+  document.getElementById('filter-price').value = '';
+  renderRooms(displayedRooms);
+}
+
+function openBooking(id) {
+  selectedRoom = ALL_ROOMS.find(r=>r.id===id);
+  document.getElementById('b-name').textContent = selectedRoom.name;
+  document.getElementById('b-cat').textContent = selectedRoom.cat;
+  document.getElementById('b-price').textContent = selectedRoom.price.toLocaleString('ru') + ' ₽ / ночь';
+  document.getElementById('b-emoji').textContent = selectedRoom.emoji;
+  clearForm();
+  showPage('booking');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function goBack() { showPage('catalog'); }
+
+function goHome() {
+  document.getElementById('success-overlay').classList.remove('show');
+  showPage('catalog');
+  displayedRooms = shuffle(ALL_ROOMS);
+  resetFilter();
+  renderRooms(displayedRooms);
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+}
+
+['f-checkin','f-checkout'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', function(e){
+    let v = e.target.value.replace(/\D/g,'');
+    if(v.length>2) v=v.slice(0,2)+'.'+v.slice(2);
+    if(v.length>5) v=v.slice(0,5)+'.'+v.slice(5);
+    e.target.value=v.slice(0,10);
+  });
+});
+
+document.getElementById('f-phone').addEventListener('input', function(e){
+  let v = e.target.value.replace(/[^\d+()\\-]/g,'');
+  e.target.value = v;
+});
+
+function clearForm() {
+  ['f-name','f-surname','f-phone','f-email','f-checkin','f-checkout'].forEach(id=>{
+    const el = document.getElementById(id);
+    el.value='';
+    el.classList.remove('err','ok');
+  });
+  ['e-name','e-surname','e-phone','e-email','e-checkin','e-checkout'].forEach(id=>{
+    document.getElementById(id).textContent='';
+  });
+}
+
+function setField(inputId, errId, ok, msg='') {
+  const input = document.getElementById(inputId);
+  const err = document.getElementById(errId);
+  input.classList.toggle('err', !ok);
+  input.classList.toggle('ok', ok);
+  err.textContent = ok ? '' : msg;
+  return ok;
+}
+
+function isValidDate(s) {
+  const m = s.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+  if(!m) return false;
+  const d=+m[1], mo=+m[2], y=+m[3];
+  if(mo<1||mo>12||d<1||d>31||y<2024) return false;
+  return true;
+}
+
+function submitBooking() {
+  const name = document.getElementById('f-name').value.trim();
+  const surname = document.getElementById('f-surname').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  const checkin = document.getElementById('f-checkin').value.trim();
+  const checkout = document.getElementById('f-checkout').value.trim();
+
+  const cyrName = /^[А-ЯЁа-яёA-Za-z][А-ЯЁа-яёA-Za-z\s.\-]+$/;
+  const phoneReg = /^\+7\(\d{3}\)\d{3}-\d{2}-\d{2}$/;
+  const emailReg = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  let valid = true;
+  valid &= setField('f-name','e-name', name.length>=2 && cyrName.test(name), 'Только кириллица, пробелы, точки, тире');
+  valid &= setField('f-surname','e-surname', surname.length>=2 && cyrName.test(surname), 'Только кириллица, пробелы, точки, тире');
+  valid &= setField('f-phone','e-phone', phoneReg.test(phone), 'Формат: +7(XXX)XXX-XX-XX');
+  valid &= setField('f-email','e-email', emailReg.test(email), 'Введите корректный e-mail');
+  valid &= setField('f-checkin','e-checkin', isValidDate(checkin), 'Формат: ДД.ММ.ГГГГ');
+  valid &= setField('f-checkout','e-checkout', isValidDate(checkout), 'Формат: ДД.ММ.ГГГГ');
+
+  if(valid) {
+    const [d1,m1,y1] = checkin.split('.').map(Number);
+    const [d2,m2,y2] = checkout.split('.').map(Number);
+    const cin = new Date(y1,m1-1,d1);
+    const cout = new Date(y2,m2-1,d2);
+    if(cout <= cin) {
+      setField('f-checkout','e-checkout', false, 'Выезд должен быть позже заезда');
+      return;
+    }
+    document.getElementById('success-overlay').classList.add('show');
+  }
+}
+
+displayedRooms = shuffle(ALL_ROOMS);
+renderRooms(displayedRooms);
+</script>
+</body>
+</html>
