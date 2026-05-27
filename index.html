@@ -648,7 +648,7 @@ function renderRooms(rooms) {
   }
   grid.innerHTML = rooms.map(r => `
     <div class="room-card">
-      <img src="${r.img}" alt="${r.name}" style="width:100%;height:clamp(140px,20vw,200px);object-fit:cover;display:block;">
+      <div class="room-img-placeholder">${r.emoji}</div>
       <div class="room-body">
         <div class="room-category">${r.cat}</div>
         <div class="room-name">${r.name}</div>
@@ -767,7 +767,7 @@ function submitBooking() {
   valid &= setField('f-checkin','e-checkin', isValidDate(checkin), 'Формат: ДД.ММ.ГГГГ');
   valid &= setField('f-checkout','e-checkout', isValidDate(checkout), 'Формат: ДД.ММ.ГГГГ');
 
- if(valid) {
+  if(valid) {
     const [d1,m1,y1] = checkin.split('.').map(Number);
     const [d2,m2,y2] = checkout.split('.').map(Number);
     const cin = new Date(y1,m1-1,d1);
@@ -779,7 +779,7 @@ function submitBooking() {
     document.getElementById('success-overlay').classList.add('show');
   }
 }
- 
+
 displayedRooms = shuffle(ALL_ROOMS);
 renderRooms(displayedRooms);
 </script>
