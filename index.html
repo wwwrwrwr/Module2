@@ -747,6 +747,11 @@ function isValidDate(s) {
   return true;
 }
 
+ function parseDate(s) {
+  const [d,mo,y] = s.split('.').map(Number);
+  return new Date(y, mo-1, d);
+ }
+
 function submitBooking() {
   const name = document.getElementById('f-name').value.trim();
   const surname = document.getElementById('f-surname').value.trim();
@@ -768,17 +773,22 @@ function submitBooking() {
   valid &= setField('f-checkout','e-checkout', isValidDate(checkout), 'Формат: ДД.ММ.ГГГГ');
 
   if(valid) {
-    const [d1,m1,y1] = checkin.split('.').map(Number);
-    const [d2,m2,y2] = checkout.split('.').map(Number);
-    const cin = new Date(y1,m1-1,d1);
-    const cout = new Date(y2,m2-1,d2);
-    if(cout <= cin) {
-      setField('f-checkout','e-checkout', false, 'Выезд должен быть позже заезда');
-      return;
-    }
-    document.getElementById('success-overlay').classList.add('show');
+    const today = new Date();
+   today.setHours(0,0,0,0);
+
+   const cin = parseDate(checkin);
+   const cout = parseDate(checkout);
+
+   if(cin < today) {
+    setField('f-checkin', 'e-checkin', false, 'Дата заезда не может быть в прошлом');
+    return;
+   }
+   if(cout =< cin) {
+    setField('f-checkout', 'e-checkout', false, 'Выезд должен быть позже заезда');
+    return;
+   }
+   document.getElementById('success-overlay').classList.add('show');
   }
-}
 
 displayedRooms = shuffle(ALL_ROOMS);
 renderRooms(displayedRooms);
