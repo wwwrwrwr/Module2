@@ -767,16 +767,16 @@ function submitBooking() {
   valid &= setField('f-checkin','e-checkin', isValidDate(checkin), 'Формат: ДД.ММ.ГГГГ');
   valid &= setField('f-checkout','e-checkout', isValidDate(checkout), 'Формат: ДД.ММ.ГГГГ');
 
-  if(valid) {
+ if(valid) {
     const [d1,m1,y1] = checkin.split('.').map(Number);
-   const [d2,m2,y2] = checkin.split('.').map(Number);
-   const cin = new Date (y1,m1-1,d1);
-   const cout = new Date (y2,m2-1,d2);
-   if(cout =< cin) {
-    setField('f-checkout','e-checkout', false, 'Выезд должен быть позже заезда');
-    return;
-   }
-   document.getElementById('success-overlay').classList.add('show');
+    const [d2,m2,y2] = checkout.split('.').map(Number);
+    const cin = new Date(y1,m1-1,d1);
+    const cout = new Date(y2,m2-1,d2);
+    if(cout <= cin) {
+      setField('f-checkout','e-checkout', false, 'Выезд должен быть позже заезда');
+      return;
+    }
+    document.getElementById('success-overlay').classList.add('show');
   }
 }
  
