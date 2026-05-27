@@ -648,7 +648,7 @@ function renderRooms(rooms) {
   }
   grid.innerHTML = rooms.map(r => `
     <div class="room-card">
-      <div class="room-img-placeholder">${r.emoji}</div>
+      <img src="${r.img}" alt="${r.name}" style="width:100%;height:clamp(140px,20vw,200px)object-fit:cover;display:block;">
       <div class="room-body">
         <div class="room-category">${r.cat}</div>
         <div class="room-name">${r.name}</div>
